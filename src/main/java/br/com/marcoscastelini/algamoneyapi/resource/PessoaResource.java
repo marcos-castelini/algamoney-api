@@ -38,4 +38,11 @@ public class PessoaResource {
         return repository.findById(id)
                 .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deletarPorId(@PathVariable Long id) {
+        repository.deleteById(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }
