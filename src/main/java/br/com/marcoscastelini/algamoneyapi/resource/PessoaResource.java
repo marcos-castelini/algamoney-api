@@ -4,6 +4,7 @@ import br.com.marcoscastelini.algamoneyapi.event.RecursoCriadoEvent;
 import br.com.marcoscastelini.algamoneyapi.model.Pessoa;
 import br.com.marcoscastelini.algamoneyapi.repository.PessoaRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +45,22 @@ public class PessoaResource {
         repository.deleteById(id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> atualizarPessoa(@PathVariable Long id, @Valid @RequestBody Pessoa pessoa) {
+        Pessoa pessoaSalva = repository.findById(id).orElseThrow();
+        BeanUtils.copyProperties(pessoa, pessoaSalva, "id");
+        repository.save(pessoaSalva);
+
+        return ResponseEntity.ok(pessoa);
+    }
+
+    @PutMapping("/{id}/ativo")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void atualizarPropriedadeAtivo(@PathVariable Long id, @RequestBody Boolean ativo){
+        Pessoa pessoaSPessoa = repository.findById(id).orElseThrow();
+        pessoaSPessoa.setAtivo(ativo);
+        repository.save(pessoaSPessoa);
     }
 }
