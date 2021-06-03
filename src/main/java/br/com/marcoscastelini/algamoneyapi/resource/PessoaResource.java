@@ -53,7 +53,7 @@ public class PessoaResource {
         BeanUtils.copyProperties(pessoa, pessoaSalva, "id");
         repository.save(pessoaSalva);
 
-        return ResponseEntity.ok(pessoa);
+        return ResponseEntity.ok(pessoaSalva);
     }
 
     @PutMapping("/{id}/ativo")
