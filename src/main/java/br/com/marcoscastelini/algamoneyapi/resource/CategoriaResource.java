@@ -1,14 +1,16 @@
 package br.com.marcoscastelini.algamoneyapi.resource;
 
+import br.com.marcoscastelini.algamoneyapi.event.RecursoCriadoEvent;
 import br.com.marcoscastelini.algamoneyapi.model.Categoria;
 import br.com.marcoscastelini.algamoneyapi.repository.CategoriaRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @AllArgsConstructor
@@ -17,6 +19,7 @@ import java.util.List;
 public class CategoriaResource {
 
     private final CategoriaRepository repository;
+    private final ApplicationEventPublisher publisher;
 
     @GetMapping
     public ResponseEntity<List<Categoria>> listar() {
@@ -24,13 +27,11 @@ public class CategoriaResource {
     }
 
     @PostMapping
-    public ResponseEntity<Categoria> criar(@RequestBody @Valid Categoria categoria) {
+    public ResponseEntity<Categoria> criar(@RequestBody @Valid Categoria categoria, HttpServletResponse response) {
         Categoria categoriaSalva = repository.save(categoria);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .path("/{id}")
-                .buildAndExpand(categoriaSalva.getId()).toUri();
+        publisher.publishEvent(new RecursoCriadoEvent(this, response, categoriaSalva.getId()));
 
-        return ResponseEntity.created(uri).body(categoria);
+        return ResponseEntity.status(HttpStatus.CREATED).body(categoria);
     }
 
     @GetMapping("/{id}")

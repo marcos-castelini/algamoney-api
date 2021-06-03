@@ -1,14 +1,16 @@
 package br.com.marcoscastelini.algamoneyapi.resource;
 
+import br.com.marcoscastelini.algamoneyapi.event.RecursoCriadoEvent;
 import br.com.marcoscastelini.algamoneyapi.model.Pessoa;
 import br.com.marcoscastelini.algamoneyapi.repository.PessoaRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import java.net.URI;
 import java.util.List;
 
 @AllArgsConstructor
@@ -17,24 +19,22 @@ import java.util.List;
 public class PessoaResource {
 
     private final PessoaRepository repository;
+    private final ApplicationEventPublisher publisher;
 
     @GetMapping
-    public ResponseEntity<List<Pessoa>> listar(){
+    public ResponseEntity<List<Pessoa>> listar() {
         return ResponseEntity.ok(repository.findAll());
     }
 
     @PostMapping
-    public ResponseEntity<Pessoa> criar(@RequestBody @Valid Pessoa pessoa){
+    public ResponseEntity<Pessoa> criar(@RequestBody @Valid Pessoa pessoa, HttpServletResponse response) {
         Pessoa pessoaSalva = repository.save(pessoa);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri()
-                .path("/{id}")
-                .buildAndExpand(pessoaSalva.getId()).toUri();
-
-        return ResponseEntity.created(uri).body(pessoa);
+        publisher.publishEvent(new RecursoCriadoEvent(this, response, pessoaSalva.getId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(pessoa);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pessoa> buscarPorId(@PathVariable Long id){
+    public ResponseEntity<Pessoa> buscarPorId(@PathVariable Long id) {
         return repository.findById(id)
                 .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
