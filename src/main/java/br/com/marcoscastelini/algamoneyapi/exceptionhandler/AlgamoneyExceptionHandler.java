@@ -1,5 +1,7 @@
 package br.com.marcoscastelini.algamoneyapi.exceptionhandler;
 
+import br.com.marcoscastelini.algamoneyapi.service.exception.PessoaInativaException;
+import br.com.marcoscastelini.algamoneyapi.service.exception.PessoaNaoLocalizadaException;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.context.MessageSource;
@@ -60,6 +62,28 @@ public class AlgamoneyExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
         String mensagemUsuario = messageSource.getMessage("recurso.operacao-nao-permitida", null, LocaleContextHolder.getLocale());
+        String mensagemDesenvolvedor = ExceptionUtils.getRootCauseMessage(ex);
+
+        return handleExceptionInternal(ex, List.of(Erro.builder()
+                .mensagemUsuario(mensagemUsuario)
+                .mensagemDesenvolvedor(mensagemDesenvolvedor)
+                .build()), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(PessoaNaoLocalizadaException.class)
+    public ResponseEntity<Object> handlePessoaNaoLocalizadaException(PessoaNaoLocalizadaException ex, WebRequest request) {
+        String mensagemUsuario = messageSource.getMessage("recurso.pessoa-nao-localizada", null, LocaleContextHolder.getLocale());
+        String mensagemDesenvolvedor = ExceptionUtils.getRootCauseMessage(ex);
+
+        return handleExceptionInternal(ex, List.of(Erro.builder()
+                .mensagemUsuario(mensagemUsuario)
+                .mensagemDesenvolvedor(mensagemDesenvolvedor)
+                .build()), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler(PessoaInativaException.class)
+    public ResponseEntity<Object> handlePessoaInativaException(PessoaInativaException ex, WebRequest request) {
+        String mensagemUsuario = messageSource.getMessage("recurso.pessoa-inativa", null, LocaleContextHolder.getLocale());
         String mensagemDesenvolvedor = ExceptionUtils.getRootCauseMessage(ex);
 
         return handleExceptionInternal(ex, List.of(Erro.builder()

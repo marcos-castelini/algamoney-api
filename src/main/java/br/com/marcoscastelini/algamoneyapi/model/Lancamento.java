@@ -28,20 +28,26 @@ public class Lancamento implements Serializable {
     @Size(min = 0, max = 50)
     private String descricao;
 
+    @NotNull
     @Column(name = "data_vencimento")
     private LocalDate dataVencimento;
     @Column(name = "data_pagamento")
     private LocalDate dataPagamento;
+    @NotNull
     private BigDecimal valor;
+
     private String observacao;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     private TipoLancamento tipo;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "id_categoria", referencedColumnName = "id")
     private Categoria categoria;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "id_pessoa", referencedColumnName = "id")
     private Pessoa pessoa;

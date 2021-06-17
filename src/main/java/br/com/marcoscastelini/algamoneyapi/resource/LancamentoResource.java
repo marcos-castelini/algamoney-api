@@ -3,6 +3,7 @@ package br.com.marcoscastelini.algamoneyapi.resource;
 import br.com.marcoscastelini.algamoneyapi.event.RecursoCriadoEvent;
 import br.com.marcoscastelini.algamoneyapi.model.Lancamento;
 import br.com.marcoscastelini.algamoneyapi.repository.LancamentoRepository;
+import br.com.marcoscastelini.algamoneyapi.service.LancamentoService;
 import lombok.AllArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,7 @@ import java.util.List;
 public class LancamentoResource {
 
     private final LancamentoRepository repository;
+    private final LancamentoService service;
     private final ApplicationEventPublisher publisher;
 
     @GetMapping
@@ -38,7 +40,7 @@ public class LancamentoResource {
 
     @PostMapping
     public ResponseEntity<?> inserirLancamento(@RequestBody @Valid Lancamento lancamento, HttpServletResponse response) {
-        Lancamento lancamentoSalvo = repository.save(lancamento);
+        Lancamento lancamentoSalvo = service.salvar(lancamento);
         publisher.publishEvent(new RecursoCriadoEvent(this, response, lancamentoSalvo.getId()));
         return ResponseEntity.status(HttpStatus.CREATED).body(lancamentoSalvo);
     }

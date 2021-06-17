@@ -1,5 +1,6 @@
 package br.com.marcoscastelini.algamoneyapi.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,4 +32,9 @@ public class Pessoa {
     @NotNull
     private Boolean ativo;
 
+    @JsonIgnore
+    @Transient
+    public boolean isInativa() {
+        return !this.ativo;
+    }
 }

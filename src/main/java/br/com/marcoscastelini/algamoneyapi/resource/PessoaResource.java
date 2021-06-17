@@ -3,6 +3,7 @@ package br.com.marcoscastelini.algamoneyapi.resource;
 import br.com.marcoscastelini.algamoneyapi.event.RecursoCriadoEvent;
 import br.com.marcoscastelini.algamoneyapi.model.Pessoa;
 import br.com.marcoscastelini.algamoneyapi.repository.PessoaRepository;
+import br.com.marcoscastelini.algamoneyapi.service.PessoaService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -20,6 +21,7 @@ import java.util.List;
 public class PessoaResource {
 
     private final PessoaRepository repository;
+    private final PessoaService service;
     private final ApplicationEventPublisher publisher;
 
     @GetMapping
@@ -36,7 +38,7 @@ public class PessoaResource {
 
     @GetMapping("/{id}")
     public ResponseEntity<Pessoa> buscarPorId(@PathVariable Long id) {
-        return repository.findById(id)
+        return service.buscarPorId(id)
                 .map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
